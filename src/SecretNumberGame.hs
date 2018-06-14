@@ -80,5 +80,5 @@ isBall
   -> Int
   -> Bool
 isBall sn ns index =
-  ((secrets sn) !! index /= ns !! index) &&
+  (not $ isHit sn ns index) &&
   (elem (ns !! index) (secrets sn))
