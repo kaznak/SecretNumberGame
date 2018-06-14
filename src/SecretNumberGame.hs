@@ -5,10 +5,11 @@ module SecretNumberGame
     , Hint(..)
 
     , mkSecretNum
+    , choiceSecretNum
     , checkSecret
     ) where
 
-import Data.Set (Set(..), fromList, size, elemAt, deleteAt)
+import Data.Set (fromList, elemAt, deleteAt)
 import Data.List
 import Control.Monad(sequence)
 
@@ -35,39 +36,27 @@ data Hint = Hint { strike :: Int
 mkSecretNum
   :: Int       -- ^ seed number
   -> SecretNum
-mkSecretNum seed = SN secrets
-  where (secrets, _, _) =
-          pickRandomNTok' 4 [] (fromList [0..9]) (mkStdGen seed)
+mkSecretNum seed = choiceSecretNum pn
+  where (pn, _) = randomR (0,(10 * 9 * 8 * 7 - 1)) (mkStdGen seed)
 
-pickRandomNTok'
-  :: (RandomGen g) =>
-     Int       -- ^ Number of Tokens
-  -> [Int]     -- ^ Token picked
-  -> Set Int   -- ^ Tokens
-  -> g         -- ^ Random Generator
-  -> ( [Int]   -- ^ Token picked
-     , Set Int -- ^ Token left
-     , g       -- ^ Random Generator
-     )
-pickRandomNTok' 0 tp toks gen     = (tp, toks, gen)
-pickRandomNTok' ntoks tp toks gen =
-  let (tokpicked, nexttoks, nextgen) = pickRandomTok' toks gen
-  in  pickRandomNTok' (ntoks - 1) (tokpicked : tp) nexttoks nextgen
-
-pickRandomTok'
-  :: (RandomGen g) =>
-     Set Int   -- ^ Tokens
-  -> g         -- ^ Random Generator
-  -> ( Int     -- ^ Token picked
-     , Set Int -- ^ Token left
-     , g       -- ^ Random Generator
-     )
-pickRandomTok' toks gen =
-  let (index, newgen) = randomR (0,(size toks)-1) gen
-  in  ( elemAt index toks
-      , deleteAt index toks
-      , newgen
-      )
+choiceSecretNum
+  :: Int       -- ^ problem number
+  -> SecretNum
+choiceSecretNum pn | pn < 0                 = undefined
+choiceSecretNum pn | pn >= (10 * 9 * 8 * 7) = undefined
+choiceSecretNum pn =
+  let n1 = div pn (9 * 8 * 7)
+      m1 = mod pn (9 * 8 * 7)
+      n2 = div m1 (8 * 7)
+      m2 = mod m1 (8 * 7)
+      n3 = div m2 7
+      m3 = mod m2 7
+      n4 = m3
+      toks = fromList [0..9]
+  in SN $ takeInds [] toks [n1,n2,n3,n4]
+  where
+    takeInds ret _ [] = ret
+    takeInds r t (i:is) = takeInds ((elemAt i t):r) (deleteAt i t) is
 
 ------------------------------------------------------------------------
 checkSecret
