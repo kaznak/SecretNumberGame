@@ -2,6 +2,7 @@ module SecretNumberGame
     (
       numSecrets
     , SecretNum(..)
+    , Hint(..)
 
     , mkSecretNum
     , checkSecret
