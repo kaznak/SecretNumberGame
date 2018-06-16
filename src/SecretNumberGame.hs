@@ -64,7 +64,7 @@ checkSecret
   -> [Int]
   -> Hint
 checkSecret sn ns = Hint (calc isHit) (calc isBall)
-  where calc f = sum $ map fromEnum $ map (f sn ns) [0..3]
+  where calc f = sum $ map (fromEnum . f sn ns) [0..3]
 
 isHit
   :: SecretNum
